@@ -1,0 +1,43 @@
+global:
+  extathCustomYaml: true
+  extensions:
+    extAuth:
+      extAuthzServerRef:
+        name: static-upstream
+        namespace: gloo-system
+      transportApiVersion: V3
+prometheus:
+  enabled: true
+observability:
+  enabled: true
+gloo-fed:
+  enabled: false
+  glooFedApiserver:
+    enable: false
+grafana:
+  defaultInstallationEnabled: true
+observability:
+  enabled: true
+gloo:
+  gatewayProxies:
+    gatewayProxy:
+      podTemplate: 
+        enablePodSecurityContext: true
+        runUnprivileged: false
+        runAsUser: 0
+      extraProxyVolumeMounts:
+        - mountPath: /socket/
+          name: cache-volume
+      extraVolumes:
+        - name: cache-volume
+          hostPath:
+            path: /tmp/socket/
+            type: ''
+      envoyLogLevel: info
+      gatewaySettings:
+        accessLoggingService:
+          accessLog:
+            - fileSink:
+                stringFormat: >
+                  [%START_TIME%] %REQ(X-AUTHORIZED)% %DYNAMIC_METADATA(envoy.filters.http.ext_authz)% %DYNAMIC_METADATA(io.solo.filters.http.transformation_ee)% %DYNAMIC_METADATA(io.solo.transformation)% %DYNAMIC_METADATA(io.solo.api_gateway.api_gateway_request_transformer)% %DYNAMIC_METADATA(io.solo.api_gateway.api_gateway_transformer)% %DYNAMIC_METADATA(io.solo)% "%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL%" %RESPONSE_CODE% %RESPONSE_FLAGS% "%UPSTREAM_HOST%" "%UPSTREAM_CLUSTER%"  
+                path: /dev/stdout

@@ -1,0 +1,21 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: grpc-vs
+  namespace: gloo-system
+spec:
+  sslConfig:
+    secretRef:
+      name: gateway-tls
+      namespace: gloo-system
+  virtualHost:
+    domains:
+    - grpc.test
+    routes:
+    - matchers:
+      - prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: static-upstream
+            namespace: gloo-system

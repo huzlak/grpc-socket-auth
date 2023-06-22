@@ -1,0 +1,33 @@
+apiVersion: gloo.solo.io/v1
+kind: Upstream
+metadata:
+  name: static-upstream
+  namespace: gloo-system
+spec:
+  useHttp2: true
+  pipe: 
+    path: /socket/grpc-socket-hello.sock
+          #  outlierDetection:
+          #    consecutive5xx: 2
+          #    interval: 1s
+          #  ignoreHealthOnHostRemoval: true
+  failover:
+    prioritizedLocalities:
+      - localityEndpoints:
+          - lbEndpoints:
+              - address: grpc-socket-hello.default
+                port: 17772
+            #locality:
+            #  region: local
+            #  zone: local
+  healthChecks:
+   - alwaysLogHealthCheckFailures: true
+     eventLogPath: /dev/stdout
+       #grpcHealthCheck: {}
+     grpcHealthCheck: 
+       serviceName: grpc
+     healthyThreshold: 1
+     interval: 1s
+     timeout: 1s
+     reuseConnection: false
+     unhealthyThreshold: 1
